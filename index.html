@@ -768,24 +768,25 @@
             dom.refreshBtn.addEventListener('click', init);
 
 // ---------- Clarity 与 Cookie ----------
-const loadClarityScript = (id) => {
+const setupClarity = (id) => {
     if (!id) return;
 
-    // 设置第一方代理，所有数据收集请求都会发往 /clarity-proxy/
-    window.clarity = window.clarity || function() { (window.clarity.q = window.clarity.q || []).push(arguments) };
-    window.clarity("set", "proxy", "/clarity-proxy");
+    // ★ 关键：在加载任何 Clarity 脚本之前，先声明代理配置
+    window.clarityConfig = {
+        proxy: '/clarity-proxy'
+    };
 
-    // 动态加载主脚本（走 /clarity/tag/ 代理）
+    // 然后通过代理路径加载主脚本
     const script = document.createElement('script');
     script.async = 1;
-    script.src = "/clarity/tag/" + id;
+    script.src = '/clarity/tag/' + id;
     document.head.appendChild(script);
 
     log(`Clarity 已通过第一方代理加载: ${id}`, 'info');
 };
 
-// 其余代码保持不变（getClarityId, EU检测等）
-// 其余代码不变（getClarityId, EU检测等）
+// 其余代码完全不变（getClarityId, EU检测, Cookie横幅等）
+// 只是把原来调用 loadClarityScript(id) 的地方，改成 setupClarity(id)
 
             const getClarityId = () => {
                 const host = window.location.hostname;
