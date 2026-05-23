@@ -768,15 +768,23 @@
             dom.refreshBtn.addEventListener('click', init);
 
             // ---------- Clarity 与 Cookie ----------
-            const loadClarityScript = (id) => {
-                if (!id) return;
-                const script = document.createElement('script');
-                script.type = 'text/javascript';
-                // ★ 修改点：通过反向代理路径 /clarity/tag/ 加载，绕过广告屏蔽器
-                script.text = `(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="/clarity/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "${id}");`;
-                document.head.appendChild(script);
-                log(`Clarity 脚本已通过反向代理加载: ${id}`, 'info');
-            };
+const loadClarityScript = (id) => {
+    if (!id) return;
+
+    // 设置第一方代理，所有数据收集请求都会发往 /clarity-proxy/
+    window.clarity = window.clarity || function() { (window.clarity.q = window.clarity.q || []).push(arguments) };
+    window.clarity("set", "proxy", "/clarity-proxy");
+
+    // 动态加载主脚本（走 /clarity/tag/ 代理）
+    const script = document.createElement('script');
+    script.async = 1;
+    script.src = "/clarity/tag/" + id;
+    document.head.appendChild(script);
+
+    log(`Clarity 已通过第一方代理加载: ${id}`, 'info');
+};
+
+// 其余代码不变（getClarityId, EU检测等）
 
             const getClarityId = () => {
                 const host = window.location.hostname;
