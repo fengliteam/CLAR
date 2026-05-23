@@ -70,7 +70,7 @@
         .tool-card.fallback { border-color:rgba(245,158,11,0.3); }
         .tool-head { display:flex; gap:14px; margin-bottom:14px; }
         .tool-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:var(--btn-bg); overflow:hidden; }
-        .tool-icon img { width:36px; height:36px; object-fit:contain; }
+        .tool-icon img { width:36px; height:36px; object-fit:contain; display:none; }
         .tool-icon i { font-size:24px; }
         .tool-info h3 { font-size:1.15rem; font-weight:600; margin-bottom:4px; }
         .tool-meta { display:flex; align-items:center; gap:8px; font-size:0.8rem; flex-wrap:wrap; }
@@ -531,6 +531,7 @@
 
             window.addEventListener('load', () => dom.appContainer.classList.add('loaded'));
 
+            // 修复后的图标渲染逻辑：当没有 icon_url 时不输出 img，确保默认图标显示
             const createToolCard = (tool, index) => {
                 const rawName = tool.name || (tool._domain || '未命名工具');
                 const rawDeveloper = tool.developer || '贡献者';
@@ -570,13 +571,23 @@
                     ? `<div class="update-content"><strong>更新内容:</strong><br>${escapeHtml(updateContent)}</div>`
                     : '';
 
+                // 关键修复：如果有图标 URL 则创建 img + i 双元素，否则只创建 i
+                let iconHtml = '';
+                if (iconUrl) {
+                    iconHtml = `
+                        <img src="${escapeHtml(iconUrl)}" alt="" loading="lazy"
+                            onload="this.style.display='block';this.nextElementSibling.style.display='none';"
+                            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                        <i class="${iconClass}" style="display:flex;color:${iconColor};"></i>
+                    `;
+                } else {
+                    iconHtml = `<i class="${iconClass}" style="display:flex;color:${iconColor};"></i>`;
+                }
+
                 return `<div class="${cardClass}" style="animation-delay: ${index * 0.04}s">
                     <div class="tool-head">
                         <div class="tool-icon" style="background:${iconBg};">
-                            <img src="${iconUrl || ''}" alt="" style="display:none" loading="lazy"
-                                onload="this.style.display='block';this.nextElementSibling.style.display='none';"
-                                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                            <i class="${iconClass}" style="display:flex;color:${iconColor};"></i>
+                            ${iconHtml}
                         </div>
                         <div class="tool-info">
                             <h3 style="color:${isError?'#dc3545':'var(--text)'};">${escapeHtml(rawName)}</h3>
@@ -758,7 +769,6 @@
 
             const isEUCountry = (code) => EU_COUNTRIES.includes(code.toUpperCase());
 
-            // 通过 IP 检测地理位置
             const detectEUviaIP = () => {
                 return new Promise((resolve) => {
                     const timeout = setTimeout(() => resolve(false), 3000);
@@ -770,7 +780,6 @@
                         })
                         .catch(() => {
                             clearTimeout(timeout);
-                            // 回退：语言检测（不精确但可用）
                             const lang = navigator.language || navigator.userLanguage || '';
                             const code = lang.split('-')[1] || lang.split('-')[0]?.toUpperCase();
                             resolve(code ? isEUCountry(code) : false);
@@ -809,26 +818,21 @@
                     return;
                 }
                 if (existingConsent === 'rejected') {
-                    return; // 不再询问
+                    return;
                 }
 
-                // 检测是否欧盟
                 const isEU = await detectEUviaIP();
                 if (!isEU) {
-                    // 非欧盟直接加载
                     loadClarityScript(clarityId);
                     return;
                 }
 
-                // 欧盟地区且无记录：显示横幅
                 showCookieBanner();
             })();
 
-            // 绑定按钮事件
             dom.cookieAccept.addEventListener('click', () => setCookieConsent(true));
             dom.cookieReject.addEventListener('click', () => setCookieConsent(false));
 
-            // 启动工具加载
             init();
         })();
     </script>
