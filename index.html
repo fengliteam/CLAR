@@ -40,10 +40,9 @@
         body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif; min-height:100vh; }
         .app-container { display:flex; min-height:100vh; opacity:0; transform:scale(0.96); transition:opacity 0.5s ease, transform 0.5s cubic-bezier(0.34,1.4,0.64,1); }
         .app-container.loaded { opacity:1; transform:scale(1); }
-        /* 移动端遮罩 */
-        .sidebar-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1040; }
-        .sidebar-overlay.active { display:block; }
+        /* 汉堡按钮 */
         .hamburger-btn { display:none; position:fixed; top:16px; left:16px; z-index:1100; background:var(--bg2); border:1px solid var(--border); color:var(--text); width:44px; height:44px; border-radius:12px; align-items:center; justify-content:center; cursor:pointer; font-size:20px; box-shadow:var(--shadow); touch-action:manipulation; }
+        /* 侧边栏 */
         .sidebar { width:240px; background:var(--bg-sidebar); padding:28px 20px; display:flex; flex-direction:column; flex-shrink:0; border-right:1px solid var(--border); transition:transform 0.3s ease; z-index:1050; }
         .sidebar-title { font-size:26px; font-weight:800; margin-bottom:36px; background:linear-gradient(135deg, var(--accent), #60a5fa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
         .sidebar-btn { background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--text); padding:12px 16px; border-radius:var(--radius); margin-bottom:8px; cursor:pointer; display:flex; align-items:center; gap:10px; font-size:14px; transition:all var(--transition); font-weight:500; }
@@ -120,11 +119,14 @@
         .modal-license a { color:var(--accent); text-decoration:underline; }
         .modal-close-btn { background:var(--accent); color:#fff; border:none; padding:10px 28px; border-radius:8px; margin-top:24px; cursor:pointer; font-size:14px; font-weight:600; float:right; transition:background var(--transition); }
         .modal-close-btn:hover { background:var(--accent-hover); }
+
+        /* 移动端样式 */
         @media (max-width:768px) {
             .hamburger-btn { display:flex; }
-            .sidebar { position:fixed; top:0; left:0; height:100vh; z-index:1050; transform:translateX(-100%); }
+            .sidebar { position:fixed; top:0; left:0; height:100vh; z-index:1050; transform:translateX(-100%); box-shadow:4px 0 20px rgba(0,0,0,0.5); }
             .sidebar.open { transform:translateX(0); }
-            .sidebar-overlay.active { display:block; }
+            /* 背景遮罩（纯视觉） */
+            .sidebar.open::before { content:""; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:-1; pointer-events:none; }
             .app-container { flex-direction:column; padding-top:70px; }
             .main-content { padding:16px; }
             .top-header { flex-direction:column; align-items:flex-start; padding:20px 24px; }
@@ -139,9 +141,6 @@
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css"></noscript>
 </head>
 <body>
-    <!-- 侧边栏遮罩 -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
     <button class="hamburger-btn" id="hamburgerBtn" aria-label="菜单">
         <i class="fas fa-bars"></i>
     </button>
@@ -156,7 +155,7 @@
             <div class="sidebar-footer">工具列表</div>
         </aside>
 
-        <main class="main-content">
+        <main class="main-content" id="mainContent">
             <header class="top-header">
                 <div class="header-text">
                     <h1><i class="fas fa-tools"></i> CLRA 工具分发平台</h1>
@@ -261,44 +260,43 @@
     </div>
 
     <script>
-        // 移动端菜单逻辑（使用 pointerdown 提高响应）
+        // ==================== 移动端菜单（稳定版） ====================
         (function() {
             const hamburger = document.getElementById('hamburgerBtn');
             const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
             let menuOpen = false;
 
             function openMenu() {
                 menuOpen = true;
                 sidebar.classList.add('open');
-                overlay.classList.add('active');
             }
             function closeMenu() {
                 menuOpen = false;
                 sidebar.classList.remove('open');
-                overlay.classList.remove('active');
             }
             function toggleMenu() {
                 menuOpen ? closeMenu() : openMenu();
             }
 
-            hamburger.addEventListener('pointerdown', function(e) {
-                e.preventDefault();
+            hamburger.addEventListener('click', function(e) {
+                e.stopPropagation();
                 toggleMenu();
             });
 
-            overlay.addEventListener('pointerdown', function(e) {
-                e.preventDefault();
+            // 全局点击关闭菜单（排除侧边栏内部和汉堡按钮）
+            document.addEventListener('click', function(e) {
+                if (!menuOpen) return;
+                if (sidebar.contains(e.target) || hamburger.contains(e.target)) return;
                 closeMenu();
             });
 
-            // 防止侧边栏内点击关闭
-            sidebar.addEventListener('pointerdown', function(e) {
+            // 侧边栏内部点击阻止冒泡（防止意外关闭）
+            sidebar.addEventListener('click', function(e) {
                 e.stopPropagation();
             });
         })();
 
-        // 主逻辑（与之前一致，保留了自定义强调色、主题、缓存等功能）
+        // ==================== 主逻辑 ====================
         (() => {
             const WILDCARD_CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
             const LOG_COLORS = { error: '#ef4444', warn: '#f59e0b', success: '#10b981', info: '#3b82f6' };
