@@ -70,7 +70,7 @@
         .tool-card.fallback { border-color:rgba(245,158,11,0.3); }
         .tool-head { display:flex; gap:14px; margin-bottom:14px; }
         .tool-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:var(--btn-bg); overflow:hidden; }
-        .tool-icon img { width:36px; height:36px; object-fit:contain; display:block; } /* 默认显示 */
+        .tool-icon img { width:36px; height:36px; object-fit:contain; display:block; }
         .tool-icon i { font-size:24px; }
         .tool-info h3 { font-size:1.15rem; font-weight:600; margin-bottom:4px; }
         .tool-meta { display:flex; align-items:center; gap:8px; font-size:0.8rem; flex-wrap:wrap; }
@@ -397,7 +397,6 @@
 
             const isAbsoluteUrl = (url) => /^https?:\/\//i.test(url);
 
-            // 先替换通配符，再智能解析图标 URL
             const resolveIconUrl = (iconUrl, sourceDomain) => {
                 if (!iconUrl) return null;
                 const resolved = processWildcard(iconUrl);
@@ -571,12 +570,11 @@
                     log(`工具 ${rawName} 图标解析失败 (原始: ${rawIconUrl})`, 'warn');
                 }
 
-                // 构建图标 HTML：图片默认显示，加载失败则隐藏并显示备用图标
+                // 图片标签（已移除 crossorigin 和 referrerpolicy）
                 const imgHtml = iconUrl
                     ? `<img src="${escapeHtml(iconUrl)}" alt="${escapeHtml(rawName)}" loading="lazy"
                         onload="this.nextElementSibling.style.display='none';"
-                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-                        crossorigin="anonymous" referrerpolicy="no-referrer">`
+                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">`
                     : '';
                 const fallbackIconHtml = `<i class="${iconClass}" style="display:${iconUrl ? 'none' : 'flex'};color:${iconColor};"></i>`;
 
