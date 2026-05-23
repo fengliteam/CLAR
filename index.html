@@ -70,7 +70,7 @@
         .tool-card.fallback { border-color:rgba(245,158,11,0.3); }
         .tool-head { display:flex; gap:14px; margin-bottom:14px; }
         .tool-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:var(--btn-bg); overflow:hidden; }
-        .tool-icon img { width:36px; height:36px; object-fit:contain; }
+        .tool-icon img { width:36px; height:36px; object-fit:contain; display:block; } /* 默认显示 */
         .tool-icon i { font-size:24px; }
         .tool-info h3 { font-size:1.15rem; font-weight:600; margin-bottom:4px; }
         .tool-meta { display:flex; align-items:center; gap:8px; font-size:0.8rem; flex-wrap:wrap; }
@@ -400,21 +400,15 @@
             // 先替换通配符，再智能解析图标 URL
             const resolveIconUrl = (iconUrl, sourceDomain) => {
                 if (!iconUrl) return null;
-                // 替换通配符
                 const resolved = processWildcard(iconUrl);
-                // 绝对 URL 直接返回
                 if (isAbsoluteUrl(resolved)) return resolved;
-                // 协议相对 URL
                 if (resolved.startsWith('//')) return 'https:' + resolved;
-                // 疑似缺少协议的域名式路径（包含点且不以 / 或 . 开头）
                 if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/|$)/.test(resolved) && !resolved.startsWith('/') && !resolved.startsWith('.')) {
-                    const testUrl = 'https://' + resolved;
                     try {
-                        new URL(testUrl);
-                        return testUrl;
+                        new URL('https://' + resolved);
+                        return 'https://' + resolved;
                     } catch (e) {}
                 }
-                // 相对路径，基于来源域名拼接
                 try {
                     const base = sourceDomain ? `https://${sourceDomain}` : window.location.origin;
                     return new URL(resolved, base).href;
@@ -435,18 +429,8 @@
                 for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
                 return Math.abs(h);
             };
-            const generateWildcardStr = (domain) => {
-                let seed = fixedHash(domain);
-                let res = '';
-                for (let i = 0; i < 16; i++) {
-                    seed = (seed * 9301 + 49297) % 233280;
-                    res += WILDCARD_CHARS[seed % WILDCARD_CHARS.length];
-                }
-                return res;
-            };
             const processWildcard = (str) => {
                 if (!str.includes('*')) return str;
-                // 对于每个 * 生成稳定随机字符串
                 let seed = fixedHash(str);
                 let result = '';
                 for (const ch of str) {
@@ -587,6 +571,15 @@
                     log(`工具 ${rawName} 图标解析失败 (原始: ${rawIconUrl})`, 'warn');
                 }
 
+                // 构建图标 HTML：图片默认显示，加载失败则隐藏并显示备用图标
+                const imgHtml = iconUrl
+                    ? `<img src="${escapeHtml(iconUrl)}" alt="${escapeHtml(rawName)}" loading="lazy"
+                        onload="this.nextElementSibling.style.display='none';"
+                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                        crossorigin="anonymous" referrerpolicy="no-referrer">`
+                    : '';
+                const fallbackIconHtml = `<i class="${iconClass}" style="display:${iconUrl ? 'none' : 'flex'};color:${iconColor};"></i>`;
+
                 const projectUrl = tool.url ? processUrl(processWildcard(tool.url)) : null;
                 const parsedUrls = parseDownloadUrls(tool.download_url).filter(btn => {
                     const href = processUrl(processWildcard(btn.url));
@@ -613,10 +606,8 @@
                 return `<div class="${cardClass}" style="animation-delay: ${index * 0.04}s">
                     <div class="tool-head">
                         <div class="tool-icon" style="background:${iconBg};">
-                            <img src="${escapeHtml(iconUrl || '')}" alt="" style="display:none" loading="lazy"
-                                onload="this.style.display='block';this.nextElementSibling.style.display='none';"
-                                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                            <i class="${iconClass}" style="display:flex;color:${iconColor};"></i>
+                            ${imgHtml}
+                            ${fallbackIconHtml}
                         </div>
                         <div class="tool-info">
                             <h3 style="color:${isError?'#dc3545':'var(--text)'};">${escapeHtml(rawName)}</h3>
