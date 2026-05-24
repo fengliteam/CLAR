@@ -800,12 +800,12 @@
                 return new Promise((resolve) => {
                     const timeout = setTimeout(() => resolve(false), 3000);
                     fetch('https://ipapi.co/json/')
-                        。then(res => res.ok ? res.json() : Promise.reject())
-                        。then(data => {
+                        .then(res => res.ok ? res.json() : Promise.reject())
+                        .then(data => {
                             clearTimeout(timeout);
                             resolve(isEUCountry(data.country_code));
                         })
-                        。catch(() => {
+                        .catch(() => {
                             clearTimeout(timeout);
                             const lang = navigator.language || navigator.userLanguage || '';
                             const code = lang.split('-')[1] || lang.split('-')[0]?.toUpperCase();
