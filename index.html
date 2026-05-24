@@ -769,34 +769,22 @@
             dom.refreshBtn.addEventListener('click', init);
 
             // ====================  Clarity 与 Cookie（Worker 代理版） ====================
-            // ★ 你的 Worker 代理域名
             const CLARITY_PROXY_BASE = 'https://proxy.api.xingying.us.kg/clarity-proxy';
-
-            // ★ 默认 Clarity 项目 ID（所有未知域名最终都会使用这个 ID）
             const DEFAULT_CLARITY_ID = 'wvnu22ps48';
 
-            // 获取当前域名对应的项目 ID（不再返回 null，未知域名返回默认 ID）
             const getClarityId = () => {
                 const host = window.location.hostname;
                 if (host === 'clra1.lzh173.chat') return 'wvnsox7a0p';
-                // 其他所有域名都使用默认 ID，Worker 会根据 Host 头覆盖为正确的 ID
                 return DEFAULT_CLARITY_ID;
             };
 
             const setupClarity = (id) => {
                 if (!id) return;
-
-                // 启用第一方代理模式，让 Clarity 所有内部请求都走 Worker
-                window.clarityConfig = {
-                    proxy: CLARITY_PROXY_BASE
-                };
-
-                // 动态加载主脚本，也通过 Worker 代理
+                window.clarityConfig = { proxy: CLARITY_PROXY_BASE };
                 const script = document.createElement('script');
                 script.async = 1;
                 script.src = `${CLARITY_PROXY_BASE}/www.clarity.ms/tag/${id}`;
                 document.head.appendChild(script);
-
                 log(`Clarity 已通过代理加载 (前端ID: ${id})`, 'info');
             };
 
@@ -843,7 +831,6 @@
                     log('当前域名不加载 Clarity', 'info');
                     return;
                 }
-
                 const existingConsent = localStorage.getItem('cookieConsent');
                 if (existingConsent === 'accepted') {
                     setupClarity(clarityId);
@@ -856,7 +843,6 @@
                     setupClarity(clarityId);
                     return;
                 }
-
                 showCookieBanner();
             })();
 
