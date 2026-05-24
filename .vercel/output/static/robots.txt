@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://jfdoc.xingying.us.kg/sitemap-index.xml

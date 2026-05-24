@@ -5,7 +5,11 @@
     "main": "index.html",
     "scripts": {
         "sync-manifests": "node sync-manifests.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "astro dev",
+        "build": "astro build",
+        "preview": "astro preview",
+        "start": "astro dev"
     },
     "keywords": [
         "tools",
@@ -13,5 +17,22 @@
         "clra"
     ],
     "author": "CLRA Team",
-    "license": "MIT"
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/fengliteam/CLAR.git"
+    },
+    "type": "commonjs",
+    "bugs": {
+        "url": "https://github.com/fengliteam/CLAR/issues"
+    },
+    "homepage": "https://github.com/fengliteam/CLAR#readme",
+    "dependencies": {
+        "@astrojs/partytown": "^2.1.7",
+        "@astrojs/sitemap": "^3.7.2",
+        "@astrojs/vercel": "^10.0.7",
+        "@fontsource/inter": "^5.2.8",
+        "astro": "^6.3.7",
+        "astro-compress": "^2.4.1"
+    }
 }
