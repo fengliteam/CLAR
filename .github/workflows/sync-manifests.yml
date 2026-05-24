@@ -2,7 +2,7 @@ name: Sync Manifests
 
 on:
   schedule:
-    - cron: '0 6-22/1 * * *'   # 北京时间6-22点每小时
+    - cron: '0 0 * * *'   # 每天 UTC 0:00 执行（北京时间 8:00）
   workflow_dispatch:
 
 jobs:
@@ -17,8 +17,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'        # 使用稳定的LTS版本
-          cache: 'npm'              # 开启依赖缓存，加速构建
+          node-version: '22'
+          cache: 'npm'
 
       - name: Verify Node.js and npm versions
         run: |
