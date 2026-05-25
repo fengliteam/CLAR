@@ -7,7 +7,7 @@
         "sync-manifests": "node sync-manifests.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "astro dev",
-        "build": "astro build",
+        "build": "node node_modules/astro/astro.js build",
         "preview": "astro preview",
         "start": "astro dev"
     },
@@ -36,3 +36,4 @@
         "astro-compress": "^2.4.1"
     }
 }
+

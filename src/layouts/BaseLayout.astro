@@ -26,15 +26,15 @@ const {
   <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" /></noscript>
   <style is:global>
     /* 引入 Inter 字体 */
-    @import '@fontsource/inter/400.css';
-    @import '@fontsource/inter/600.css';
-    @import '@fontsource/inter/700.css';
+    
+    
+    
 
     /* 全局应用字体 */
     :root {
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
     }
-    body { font-family: var(--font-sans); }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei', 'Helvetica Neue', sans-serif; }
 
     /* 以下是原有 CSS（保持不变） */
     :root {
@@ -65,7 +65,7 @@ const {
       --shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:var(--bg); color:var(--text); font-family: var(--font-sans); min-height:100vh; position:relative; }
+    body { background:var(--bg); color:var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei', 'Helvetica Neue', sans-serif; min-height:100vh; position:relative; }
     .app-container { display:flex; min-height:100vh; opacity:0; transform:scale(0.96); transition:opacity 0.5s ease, transform 0.5s cubic-bezier(0.34,1.4,0.64,1); }
     .app-container.loaded { opacity:1; transform:scale(1); }
     .hamburger-btn { display:none; position:fixed; top:16px; left:16px; z-index:1100; background:var(--bg2); border:1px solid var(--border); color:var(--text); width:44px; height:44px; border-radius:12px; align-items:center; justify-content:center; cursor:pointer; font-size:20px; box-shadow:var(--shadow); touch-action:manipulation; }
@@ -156,17 +156,27 @@ const {
     .cookie-banner .cookie-reject { background: var(--btn-bg); border: 1px solid var(--btn-border); color: var(--text); }
     .cookie-banner .cookie-reject:hover { background: var(--btn-border); }
     @media (max-width:768px) {
-      .hamburger-btn { display:flex; }
-      .sidebar { position:absolute; top:0; left:0; height:100vh; width:240px; z-index:1050; transform:translateX(-100%); box-shadow:4px 0 20px rgba(0,0,0,0.5); overflow-y:auto; }
+      .hamburger-btn { display:flex; }/* 显示汉堡按钮 */
+      .sidebar {
+        position:fixed; top:0; left:0; height:100vh; width:260px;
+        transform:translateX(-100%); transition:transform 0.3s ease;
+        z-index:1050; box-shadow:4px 0 20px rgba(0,0,0,0.5);
+        overflow-y:auto;
+      }
       .sidebar.open { transform:translateX(0); }
-      .app-container { flex-direction:column; padding-top:70px; }
-      .main-content { padding:16px; }
+      /* 主内容全宽，并适当调整顶部间距给汉堡按钮让位 */
+      .app-container { flex-direction:column; }
+      .main-content { margin-left:0 !important; padding:12px; padding-top:70px; }
       .top-header { flex-direction:column; align-items:flex-start; padding:20px 24px; }
       .tool-card { flex:1 1 100%; min-width:0; }
       .tools-grid { gap:14px; }
-      .settings-panel { top:70px; right:12px; width:calc(100vw - 24px); }
+      .settings-panel { top:70px; right:12px; width:calc(100vw - 24px); left:12px; }
       .client-dl-btn { width:100%; justify-content:center; }
       .top-header h1 { font-size:1.4rem; }
+      /* 侧边栏打开时，汉堡按钮保持在抽屉上方 */
+      .sidebar.open + .hamburger-btn { z-index:1100; }
+      /* 防止 body 滚动（在 JS 中控制，这里可加备用） */
+      body.sidebar-open { overflow:hidden; }
     }
     /* 自定义滚动条（统一风格） */
     ::-webkit-scrollbar { width: 8px; }
@@ -179,3 +189,4 @@ const {
   <script is:inline src="/scripts/app.js"></script>
 </body>
 </html>
+
