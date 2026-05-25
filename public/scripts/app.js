@@ -591,3 +591,84 @@ function initClarity(projectId) {
     initClarity(projectId);
   }
 })();
+
+
+// === 移动端拦截与侧边栏（整合版） ===
+(function() {
+  function isMobilePortrait() {
+    return window.innerWidth <= 768 && window.matchMedia("(orientation: portrait)").matches;
+  }
+
+  function showBlockMessage() {
+    // 如果已经存在拦截层就不再创建
+    if (document.getElementById('mobileBlockOverlay')) return;
+
+    var overlay = document.createElement('div');
+    overlay.id = 'mobileBlockOverlay';
+    overlay.innerHTML = '<div style="text-align:center;color:var(--text);max-width:280px;">' +
+      '<div style="font-size:4rem;margin-bottom:1.5rem;color:var(--accent);">💻</div>' +
+      '<h2 style="font-size:1.6rem;margin-bottom:1rem;font-weight:700;">请使用电脑访问</h2>' +
+      '<p style="color:var(--text2);font-size:1rem;line-height:1.6;">本站暂不支持手机竖屏浏览，<br>请将手机横屏或使用电脑打开。</p>' +
+      '</div>';
+    overlay.style.cssText = 'display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);z-index:99999;align-items:center;justify-content:center;flex-direction:column;padding:2rem;box-sizing:border-box;';
+
+    // 隐藏所有主要内容
+    var appContainer = document.getElementById('appContainer') || document.querySelector('.app-container');
+    if (appContainer) appContainer.style.display = 'none';
+    var hamburger = document.querySelector('.hamburger-btn');
+    if (hamburger) hamburger.style.display = 'none';
+
+    document.body.appendChild(overlay);
+  }
+
+  function hideBlockMessage() {
+    var overlay = document.getElementById('mobileBlockOverlay');
+    if (overlay) overlay.remove();
+    var appContainer = document.getElementById('appContainer') || document.querySelector('.app-container');
+    if (appContainer) appContainer.style.display = '';
+    var hamburger = document.querySelector('.hamburger-btn');
+    if (hamburger && window.innerWidth <= 768) hamburger.style.display = 'flex';
+  }
+
+  function checkOrientation() {
+    if (isMobilePortrait()) {
+      showBlockMessage();
+    } else {
+      hideBlockMessage();
+    }
+  }
+
+  // 初始化检查
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkOrientation);
+  } else {
+    checkOrientation();
+  }
+
+  // 监听屏幕旋转和窗口大小变化
+  window.addEventListener('resize', checkOrientation);
+  window.addEventListener('orientationchange', function() {
+    setTimeout(checkOrientation, 100);
+  });
+
+  // ===== 侧边栏切换（仅横屏或宽屏生效） =====
+  document.addEventListener('DOMContentLoaded', function() {
+    var hamburger = document.querySelector('.hamburger-btn');
+    var sidebar = document.querySelector('.sidebar');
+    if (hamburger && sidebar) {
+      hamburger.addEventListener('click', function() {
+        if (!isMobilePortrait()) {
+          sidebar.classList.toggle('open');
+          document.body.classList.toggle('sidebar-open');
+        }
+      });
+      // 点击外部关闭
+      document.addEventListener('click', function(e) {
+        if (!sidebar.contains(e.target) && !hamburger.contains(e.target) && sidebar.classList.contains('open')) {
+          sidebar.classList.remove('open');
+          document.body.classList.remove('sidebar-open');
+        }
+      });
+    }
+  });
+})();
