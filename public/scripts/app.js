@@ -457,8 +457,7 @@
         window.clarity = window.clarity || function() {
             (window.clarity.q = window.clarity.q || []).push(arguments);
         };
-        window.clarity('set', 'upload', CLARITY_PROXY_BASE + '/www.clarity.ms/collect');
-
+        window.clarity('set', 'upload', CLARITY_PROXY_BASE + '/i.clarity.ms/collect');
         // 加载 Clarity 脚本，使用占位符，Worker 会根据 domain 参数替换为正确的项目 ID
         const script = document.createElement('script');
         script.async = true;
