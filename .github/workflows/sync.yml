@@ -16,7 +16,7 @@ jobs:
       - name: Check if running in main repository
         run: |
           if [ "${{ github.repository }}" = "CLRA-org/clra" ]; then
-            echo "🛑 This is the main repository. Syncing is not needed. Exiting."
+            echo "Main repo, syncing not needed."
             exit 0
           fi
 
