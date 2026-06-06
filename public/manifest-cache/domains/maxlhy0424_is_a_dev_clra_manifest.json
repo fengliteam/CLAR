@@ -1,13 +1,13 @@
 {
-  "name": "SCLTK",
+  "name": "SCLTK / SCLTK-Legacy",
   "developer": "MaxLHy0424",
   "version": "7.2.0 (Insider)",
   "update_content": "修复若干问题，优化性能。",
   "description": "现代 C++ 编写，高度轻量化，支持破解/恢复多款电子教室软件。",
   "url": "https://maxlhy0424.is-a.dev/legacy/get-scltk/",
   "download_url": [
-    "Mainline Edition: https://maxlhy0424.is-a.dev/assets/SCLTK/SCLTK.exe",
-    "Legacy Edition: https://maxlhy0424.is-a.dev/assets/SCLTK/SCLTK-Legacy.exe"
+    "SCLTK: https://maxlhy0424.is-a.dev/assets/SCLTK/SCLTK.exe",
+    "SCLTK-Legacy: https://maxlhy0424.is-a.dev/assets/SCLTK/SCLTK-Legacy.exe"
   ],
-  "icon_url": "maxlhy0424.is-a.dev/assets/SCLTK-icon.png"
+  "icon_url": "maxlhy0424.is-a.dev/images/SCLTK-icon.webp"
 }
