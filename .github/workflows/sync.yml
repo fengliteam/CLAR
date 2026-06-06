@@ -9,7 +9,8 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     permissions:
-      contents: write               # 只需写入权限，不再需要 issues 权限
+      contents: write
+      workflows: write               # 关键：允许更新 .github/workflows/ 下的文件
 
     steps:
       - name: Check if running in main repository
@@ -35,5 +36,5 @@ jobs:
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
           git checkout main
-          git reset --hard upstream/main      # 直接用上游覆盖本地
-          git push origin main --force        # 强制推送到当前仓库
+          git reset --hard upstream/main
+          git push origin main --force
