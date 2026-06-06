@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write       # 允许创建 PR
+      pull-requests: write
 
     steps:
-      - name: Check if running in main repository
+      - name: Check if main repo
         run: |
           if [ "${{ github.repository }}" = "CLRA-org/clra" ]; then
-            echo "🛑 This is the main repository. Syncing is not needed. Exiting."
+            echo "Main repo, exit."
             exit 0
           fi
 
@@ -24,51 +24,51 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up upstream
+      - name: Setup upstream
         run: git remote add upstream https://github.com/CLRA-org/clra.git
 
       - name: Fetch upstream
         run: git fetch upstream
 
-      - name: Try merge and handle conflict
+      - name: Merge or prepare conflict branch
         id: merge
         run: |
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
           git checkout main
           if git merge --no-commit --no-ff upstream/main; then
-            echo "✅ Merge successful, pushing..."
             git commit -m "Auto-merge from upstream"
             git push origin main
-            echo "merged=true" >> $GITHUB_OUTPUT
+            echo "conflict=false" >> $GITHUB_OUTPUT
           else
-            echo "⚠️ Merge conflict detected."
             git merge --abort
-            echo "merged=false" >> $GITHUB_OUTPUT
+            echo "conflict=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create conflict PR
-        if: steps.merge.outputs.merged == 'false'
+      - name: Create branch with conflicts
+        if: steps.merge.outputs.conflict == 'true'
         run: |
           BRANCH="sync/conflict-$(date +%Y%m%d-%H%M)"
           git checkout -b $BRANCH
-          git merge upstream/main --no-edit || true   # 强制合并，保留冲突标记
+          git merge upstream/main --no-edit || true
           git add .
           git commit -m "Merge upstream (with conflicts)" || true
           git push origin $BRANCH --force
 
-          # 用 GitHub CLI 创建 PR（无需额外脚本）
-          gh pr create \
-            --base main \
-            --head $BRANCH \
-            --title "⚠️ 上游合并冲突 - $(date +%Y-%m-%d)" \
-            --body "自动同步上游仓库 \`CLRA-org/clra\` 时出现冲突。
-          
-          **请手动解决以下冲突文件**，然后合并此 PR：
-          - \`git checkout $BRANCH\`
-          - \`git merge upstream/main\`
-          - 解决冲突后推送。
-
-          工作流运行：[查看详情](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Pull Request for conflict
+        if: steps.merge.outputs.conflict == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: sync/conflict-${{ github.run_number }}
+          base: main
+          title: "⚠️ 上游合并冲突 - ${{ env.DATE }}"
+          body: |
+            自动同步上游仓库 `CLRA-org/clra` 时出现冲突。
+            请手动解决以下冲突文件后合并此 PR：
+            - 检出该分支：`git checkout sync/conflict-${{ github.run_number }}`
+            - 执行合并并解决冲突
+            - 推送后合并 PR
+            
+            工作流运行：[查看详情](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          delete-branch: false
