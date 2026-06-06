@@ -1,4 +1,4 @@
-name: Sync from Upstream (Force Overwrite)
+name: Sync from Upstream
 
 on:
   schedule:
@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      workflows: write          # 允许推送工作流文件变更
+      workflows: write
 
     steps:
       - name: Check if running in main repository
         run: |
           if [ "${{ github.repository }}" = "CLRA-org/clra" ]; then
-            echo "This is the main repo, no sync needed."
+            echo "🛑 This is the main repository. Syncing is not needed. Exiting."
             exit 0
           fi
 
