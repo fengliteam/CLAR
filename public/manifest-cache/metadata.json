@@ -1,5 +1,5 @@
 {
-  "last_sync": "2026-06-26T23:04:24.749Z",
+  "last_sync": "2026-06-27T08:22:39.917Z",
   "total_tools": 2,
   "domains": [
     {
@@ -11,7 +11,7 @@
     {
       "domain": "maxlhy0424.is-a.dev",
       "cache_file": "maxlhy0424_is_a_dev_clra_manifest.json",
-      "tool_name": "SCLTK / SCLTK-Legacy",
+      "tool_name": "SCLTK & SCLTK-Legacy",
       "version": "7.2.0 (Insider)"
     }
   ],
