@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "last_sync": "2026-09-02T10:02:23.304Z",
+=======
+  "last_sync": "2026-09-01T22:22:27.192Z",
+>>>>>>> upstream/main
   "total_tools": 3,
   "domains": [
     {
@@ -12,7 +16,11 @@
       "domain": "scltk.maxlhy0424.is-a.dev",
       "cache_file": "scltk_maxlhy0424_is_a_dev_clra_manifest.json",
       "tool_name": "SCLTK",
+<<<<<<< HEAD
       "version": "7.2.1"
+=======
+      "version": "7.2.0"
+>>>>>>> upstream/main
     },
     {
       "domain": "*.jfglss.icu",
